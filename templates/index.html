@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="static/images/caja_reg.png" type="image/x-icon">
+    <link rel="shortcut icon" href="static/images/caja_reg.png" type="image/x-icon">
+    <style>
+        .error-message {
+            color: red;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid red;
+            border-radius: 4px;
+            background-color: #fff3f3;
+        }
+        .success-message {
+            color: green;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid green;
+            border-radius: 4px;
+            background-color: #f0fff0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Sistema de Gestión</h1>
+        
+        <div id="errorContainer" class="error-message" style="display: none;"></div>
+        <div id="successContainer" class="success-message" style="display: none;"></div>
+
+        <!-- Sección Rubros -->
+        <section class="mb-4">
+            <h2>Rubros</h2>
+            <div class="row mb-3">
+                <div class="col-md-5">
+                    <input type="text" id="codRubro" class="form-control" placeholder="Código de Rubro (máx. 3 caracteres)" maxlength="3">
+                </div>
+                <div class="col-md-5">
+                    <input type="text" id="rubro" class="form-control" placeholder="Rubro">
+                </div>
+                <div class="col-md-2">
+                    <button onclick="guardarRubro()" class="btn btn-primary w-100">Guardar</button>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-5">
+                    <input type="text" id="codRubroBorrar" class="form-control" placeholder="Código de Rubro a Borrar (máx. 3 caracteres)" maxlength="3">
+                </div>
+                <div class="col-md-5">
+                    <input type="text" id="rubroBorrar" class="form-control" placeholder="Rubro a Borrar">
+                </div>
+                <div class="col-md-2">
+                    <button onclick="borrarRubro()" class="btn btn-danger w-100">Borrar</button>
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Rubro</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaRubros"></tbody>
+            </table>
+        </section>
+
+        <!-- Sección Artículos -->
+        <section class="mb-4">
+            <h2>Artículos</h2>
+            <div class="row mb-3">
+                <div class="col-md-5">
+                    <input type="text" id="codArticulo" class="form-control" placeholder="Código de Artículo (máx. 7 caracteres)" maxlength="7">
+                </div>
+                <div class="col-md-5">
+                    <input type="text" id="articulo" class="form-control" placeholder="Artículo">
+                </div>
+                <div class="col-md-2">
+                    <button onclick="guardarArticulo()" class="btn btn-primary w-100">Guardar</button>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-5">
+                    <input type="text" id="codArticuloBorrar" class="form-control" placeholder="Código de Artículo a Borrar (máx. 7 caracteres)" maxlength="7">
+                </div>
+                <div class="col-md-5">
+                    <input type="text" id="articuloBorrar" class="form-control" placeholder="Artículo a Borrar">
+                </div>
+                <div class="col-md-2">
+                    <button onclick="borrarArticulo()" class="btn btn-danger w-100">Borrar</button>
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Artículo</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaArticulos"></tbody>
+            </table>
+        </section>
+
+        <!-- Sección Descripciones -->
+        <section class="mb-4">
+            <h2>Descripciones</h2>
+            <div class="row mb-3">
+                <div class="col-md-5">
+                    <input type="text" id="codDescripcion" class="form-control" placeholder="Código de Descripción (máx. 12 caracteres)" maxlength="12">
+                </div>
+                <div class="col-md-5">
+                    <input type="text" id="descripcion" class="form-control" placeholder="Descripción">
+                </div>
+                <div class="col-md-2">
+                    <button onclick="guardarDescripcion()" class="btn btn-primary w-100">Guardar</button>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-5">
+                    <input type="text" id="codDescripcionBorrar" class="form-control" placeholder="Código de Descripción a Borrar (máx. 12 caracteres)" maxlength="12">
+                </div>
+                <div class="col-md-5">
+                    <input type="text" id="descripcionBorrar" class="form-control" placeholder="Descripción a Borrar">
+                </div>
+                <div class="col-md-2">
+                    <button onclick="borrarDescripcion()" class="btn btn-danger w-100">Borrar</button>
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaDescripciones"></tbody>
+            </table>
+        </section>
+    </div>
+
+    <script>
+        // Funciones de utilidad
+        function mostrarError(mensaje, detalles = '') {
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.innerHTML = `
+                <strong>Error:</strong> ${mensaje}
+                ${detalles ? `<br><small>Detalles: ${detalles}</small>` : ''}
+            `;
+            errorContainer.style.display = 'block';
+            setTimeout(() => {
+                errorContainer.style.display = 'none';
+            }, 5000);
+        }
+
+        function mostrarExito(mensaje) {
+            const successContainer = document.getElementById('successContainer');
+            successContainer.innerHTML = `<strong>Éxito:</strong> ${mensaje}`;
+            successContainer.style.display = 'block';
+            setTimeout(() => {
+                successContainer.style.display = 'none';
+            }, 3000);
+        }
+
+        // Funciones para Rubros
+        async function cargarRubros() {
+            try {
+                const response = await fetch('/rubros');
+                const data = await response.json();
+                if (data.success) {
+                    const tabla = document.getElementById('tablaRubros');
+                    tabla.innerHTML = data.data.map(rubro => `
+                        <tr>
+                            <td>${rubro.codrubro}</td>
+                            <td>${rubro.rubro}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    mostrarError('Error al cargar los rubros', data.error);
+                }
+            } catch (error) {
+                mostrarError('Error al cargar los rubros', error.message);
+            }
+        }
+
+        async function guardarRubro() {
+            const codrubro = document.getElementById('codRubro').value.trim();
+            const rubro = document.getElementById('rubro').value.trim();
+
+            if (!codrubro || !rubro) {
+                mostrarError('Por favor complete todos los campos');
+                return;
+            }
+
+            try {
+                const response = await fetch('/rubros', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ codrubro, rubro })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    mostrarExito('Rubro guardado exitosamente');
+                    document.getElementById('codRubro').value = '';
+                    document.getElementById('rubro').value = '';
+                    await cargarRubros();
+                } else {
+                    mostrarError('Error al guardar el rubro', data.error);
+                }
+            } catch (error) {
+                mostrarError('Error al guardar el rubro', error.message);
+            }
+        }
+
+        async function borrarRubro() {
+            const codrubroBorrar = document.getElementById('codRubroBorrar').value.trim();
+            const rubroBorrar = document.getElementById('rubroBorrar').value.trim();
+
+            if (!codrubroBorrar && !rubroBorrar) {
+                mostrarError('Por favor ingrese el código o el nombre del rubro a borrar');
+                return;
+            }
+
+            try {
+    const response = await fetch(`/rubros/${codrubroBorrar}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    const data = await response.json();
+    if (data.success) {
+        mostrarExito('Rubro borrado exitosamente');
+        document.getElementById('codRubroBorrar').value = '';
+        document.getElementById('rubroBorrar').value = '';
+        await cargarRubros();
+    } else {
+        mostrarError('Error al borrar el rubro', data.error);
+    }
+} catch (error) {
+    mostrarError('Error al borrar el rubro', error.message);
+}
+
+        }
+
+        // Funciones para Artículos
+        async function cargarArticulos() {
+            try {
+                const response = await fetch('/articulos');
+                const data = await response.json();
+                if (data.success) {
+                    const tabla = document.getElementById('tablaArticulos');
+                    tabla.innerHTML = data.data.map(articulo => `
+                        <tr>
+                            <td>${articulo.codarticulo}</td>
+                            <td>${articulo.articulo}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    mostrarError('Error al cargar los artículos', data.error);
+                }
+            } catch (error) {
+                mostrarError('Error al cargar los artículos', error.message);
+            }
+        }
+
+        async function guardarArticulo() {
+            const codarticulo = document.getElementById('codArticulo').value.trim();
+            const articulo = document.getElementById('articulo').value.trim();
+
+            if (!codarticulo || !articulo) {
+                mostrarError('Por favor complete todos los campos');
+                return;
+            }
+
+            try {
+                const response = await fetch('/articulos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ codarticulo, articulo })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    mostrarExito('Artículo guardado exitosamente');
+                    document.getElementById('codArticulo').value = '';
+                    document.getElementById('articulo').value = '';
+                    await cargarArticulos();
+                } else {
+                    mostrarError('Error al guardar el artículo', data.error);
+                }
+            } catch (error) {
+                mostrarError('Error al guardar el artículo', error.message);
+            }
+        }
+
+        async function borrarArticulo() {
+            const codarticuloBorrar = document.getElementById('codArticuloBorrar').value.trim();
+            const articuloBorrar = document.getElementById('articuloBorrar').value.trim();
+
+            if (!codarticuloBorrar && !articuloBorrar) {
+                mostrarError('Por favor ingrese el código o el nombre del artículo a borrar');
+                return;
+            }
+
+            try {
+    const response = await fetch(`/articulos/${codarticuloBorrar}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    const data = await response.json();
+    if (data.success) {
+        mostrarExito('Artículo borrado exitosamente');
+        document.getElementById('codArticuloBorrar').value = '';
+        document.getElementById('articuloBorrar').value = '';
+        await cargarArticulos();
+    } else {
+        mostrarError('Error al borrar el artículo', data.error);
+    }
+} catch (error) {
+    mostrarError('Error al borrar el artículo', error.message);
+}
+
+        }
+
+        // Funciones para Descripciones
+        async function cargarDescripciones() {
+            try {
+                const response = await fetch('/descripciones');
+                const data = await response.json();
+                if (data.success) {
+                    const tabla = document.getElementById('tablaDescripciones');
+                    tabla.innerHTML = data.data.map(descripcion => `
+                        <tr>
+                            <td>${descripcion.coddescripcion}</td>
+                            <td>${descripcion.descripcion}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    mostrarError('Error al cargar las descripciones', data.error);
+                }
+            } catch (error) {
+                mostrarError('Error al cargar las descripciones', error.message);
+            }
+        }
+
+        async function guardarDescripcion() {
+            const coddescripcion = document.getElementById('codDescripcion').value.trim();
+            const descripcion = document.getElementById('descripcion').value.trim();
+
+            if (!coddescripcion || !descripcion) {
+                mostrarError('Por favor complete todos los campos');
+                return;
+            }
+
+            try {
+                const response = await fetch('/descripciones', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ coddescripcion, descripcion })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    mostrarExito('Descripción guardada exitosamente');
+                    document.getElementById('codDescripcion').value = '';
+                    document.getElementById('descripcion').value = '';
+                    await cargarDescripciones();
+                } else {
+                    mostrarError('Error al guardar la descripción', data.error);
+                }
+            } catch (error) {
+                mostrarError('Error al guardar la descripción', error.message);
+            }
+        }
+
+        async function borrarDescripcion() {
+            const coddescripcionBorrar = document.getElementById('codDescripcionBorrar').value.trim();
+            const descripcionBorrar = document.getElementById('descripcionBorrar').value.trim();
+
+            if (!coddescripcionBorrar && !descripcionBorrar) {
+                mostrarError('Por favor ingrese el código o el nombre de la descripción a borrar');
+                return;
+            }
+
+            try {
+    const response = await fetch(`/descripciones/${coddescripcionBorrar}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    const data = await response.json();
+    if (data.success) {
+        mostrarExito('Descripción borrada exitosamente');
+        document.getElementById('codDescripcionBorrar').value = '';
+        document.getElementById('descripcionBorrar').value = '';
+        await cargarDescripciones();
+    } else {
+        mostrarError('Error al borrar la descripción', data.error);
+    }
+} catch (error) {
+    mostrarError('Error al borrar la descripción', error.message);
+}
+
+        }
+
+        // Cargar datos al inicio
+        window.onload = async () => {
+            await cargarRubros();
+            await cargarArticulos();
+            await cargarDescripciones();
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
